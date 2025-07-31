@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX2 Lern-App</title>
+    <style>
+        :root {
+            --primary-bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #1c1e21;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --correct-color: #28a745;
+            --correct-hover: #218838;
+            --incorrect-color: #dc3545;
+            --incorrect-hover: #c82333;
+            --neutral-color: #6c757d;
+            --neutral-hover: #5a6268;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .screen {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 20px;
+            display: none; /* All screens hidden by default */
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Menu Screen */
+        #menu-screen p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        /* Card Screen */
+        #card-container {
+            perspective: 1000px;
+            min-height: 250px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: var(--card-bg);
+            border: 1px solid #ddd;
+        }
+
+        .card-face-back {
+            transform: rotateY(180deg);
+            background-color: #e9ecef;
+        }
+
+        #question, #answer {
+            font-size: 1.2em;
+        }
+
+        #answer ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .options-container button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        .feedback-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        /* Buttons */
+        .btn {
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin: 10px 5px;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-correct { background-color: var(--correct-color); color: white; }
+        .btn-correct:hover { background-color: var(--correct-hover); }
+
+        .btn-incorrect { background-color: var(--incorrect-color); color: white; }
+        .btn-incorrect:hover { background-color: var(--incorrect-hover); }
+
+        .btn-neutral { background-color: var(--neutral-color); color: white; }
+        .btn-neutral:hover { background-color: var(--neutral-hover); }
+
+        /* Stats Screen & Progress */
+        #stats-screen ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        #stats-screen li {
+            font-size: 1.1em;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        #stats-screen li:last-child {
+            border-bottom: none;
+        }
+        #stats-screen li strong {
+            color: var(--primary-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: var(--correct-color);
+            border-radius: var(--border-radius);
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .progress-label {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: var(--neutral-color);
+        }
+        
+        /* Completion Screen */
+        .completion-icon {
+            font-size: 4em;
+            color: var(--correct-color);
+            margin-bottom: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>UX2 Klausur-Trainer</h1>
+
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="screen active">
+            <h2>Willkommen, Lukas!</h2>
+            <p>Diese App hilft dir, alle relevanten Inhalte für die UX2-Klausur zu meistern. Beantworte die Karteikarten. Wenn du eine Karte dreimal richtig beantwortet hast, gilt sie als "gelernt" und wird seltener angezeigt. Dein Fortschritt wird automatisch gespeichert.</p>
+            <button id="start-btn" class="btn btn-primary">Lernen starten</button>
+            <button id="stats-btn" class="btn btn-neutral">Statistik anzeigen</button>
+        </div>
+
+        <!-- Learning Screen -->
+        <div id="learning-screen" class="screen">
+            <div id="progress-container">
+                 <div class="progress-bar-container">
+                    <div id="learning-progress-bar" class="progress-bar"></div>
+                </div>
+                <div id="learning-progress-label" class="progress-label"></div>
+            </div>
+           
+            <div id="card-container">
+                 <div class="card" id="flashcard">
+                    <div class="card-face card-face-front">
+                        <p id="question"></p>
+                    </div>
+                    <div class="card-face card-face-back">
+                        <div id="answer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="multiple-choice-container" style="display: none;"></div>
+            
+            <div class="feedback-container" id="feedback-buttons">
+                <p>Wie gut kanntest du die Antwort?</p>
+                <button class="btn btn-correct" onclick="handleAnswer(true)">Ich wusste es!</button>
+                <button class="btn btn-incorrect" onclick="handleAnswer(false)">Upps, vergessen.</button>
+            </div>
+
+            <button id="show-answer-btn" class="btn btn-neutral">Antwort zeigen</button>
+            <button id="back-to-menu-btn" class="btn btn-neutral">Zurück zum Menü</button>
+        </div>
+
+        <!-- Statistics Screen -->
+        <div id="stats-screen" class="screen">
+            <h2>Dein Fortschritt</h2>
+            <div class="progress-bar-container">
+                <div id="stats-progress-bar" class="progress-bar"></div>
+            </div>
+             <div id="stats-progress-label" class="progress-label"></div>
+            <ul>
+                <li>Gelernte Karten (3x richtig): <strong id="learned-cards">0</strong></li>
+                <li>Im Lernprozess: <strong id="learning-cards">0</strong></li>
+                <li>Noch nicht begonnen: <strong id="unseen-cards">0</strong></li>
+                <li>Gesamtzahl der Karten: <strong id="total-cards">0</strong></li>
+            </ul>
+             <button id="reset-progress-btn" class="btn btn-incorrect">Fortschritt zurücksetzen</button>
+            <button id="back-to-menu-from-stats-btn" class="btn btn-primary">Zurück zum Menü</button>
+        </div>
+        
+        <!-- Completion Screen -->
+        <div id="completion-screen" class="screen">
+            <div class="completion-icon">🎉</div>
+            <h2>Fantastisch!</h2>
+            <p>Du hast alle Karten gemeistert. Du bist bestens auf die Klausur vorbereitet! Du kannst deinen Fortschritt zurücksetzen, um von vorne zu beginnen.</p>
+            <button id="reset-from-completion-btn" class="btn btn-incorrect">Nochmal lernen</button>
+            <button id="back-to-menu-from-completion-btn" class="btn btn-primary">Zum Menü</button>
+        </div>
+
+    </div>
+
+    <script>
+    const cardData = [
+        // 1. Einführung, Ergonomie & Informationsverarbeitung
+        { q: "Was sind 'Human Factors'?", a: "Die psychologischen und physiologischen Eigenschaften (Systemparameter), die der menschliche Nutzer in die Mensch-Technik-Interaktion einbringt. Es ist die Wissenschaft vom Verständnis der Interaktionen zwischen Menschen und anderen Systemelementen." },
+        { q: "Definiere 'Ergonomie'.", a: "Die Wissenschaft von der menschlichen Arbeit mit dem Ziel, die Arbeitsbedingungen an den Menschen anzupassen, um fehlerfreies, effizientes Arbeiten zu ermöglichen und Gesundheitsschäden zu vermeiden." },
+        { q: "Welche 3 psychologischen & physiologischen Faktoren gibt es?", a: "1. Wahrnehmung (Eingabe), 2. Kognition (Verarbeitung), 3. Motorik (Ausgabe)." },
+        { q: "Welche Komponente im Grundmodell der Informationsverarbeitung (nach Wandmacher) identifiziert Muster in Sinnesdaten?", a: "Die Zeichenerkennung." },
+        { q: "Wie würde ein 'Reflex' im Informationsverarbeitungsmodell dargestellt?", a: "Als direkter Pfeil von den sensorischen Registern zu den motorischen Systemen, der das Arbeitsgedächtnis umgeht." },
+        { q: "Was ist 'präattentive Wahrnehmung'?", a: "Die Fähigkeit, bestimmte visuelle Merkmale (z.B. Farbe, Form, Größe) schnell und ohne bewusste Anstrengung zu erkennen." },
+        { q: "Welches Gestaltgesetz besagt, dass nahe beieinander liegende Elemente als Gruppe wahrgenommen werden?", a: "Das Gesetz der Nähe." },
+        { q: "Welches Gestaltgesetz besagt, dass wir unvollständige Figuren im Geist vervollständigen?", a: "Das Gesetz der Geschlossenheit." },
+        { q: "Auf welchen zwei Effekten basiert räumliches Hören?", a: "Interaural Time Difference (ITD) und Interaural Intensity Difference (IID)." },
+        { q: "Was beschreibt der 'Cocktail-Party-Effekt'?", a: "Die Fähigkeit, in einer lauten Umgebung selektiv einer bestimmten Schallquelle zuzuhören." },
+        { q: "Nenne ein Gestaltungsprinzip nach Wickens et al. aus der Kategorie 'Gedächtnis'.", a: "Wissen in der Welt bereitstellen, Visuelles Moment, Feedforward, oder Konsistenz." },
+
+        // 2. Affordances
+        { q: "Definiere 'Affordances'.", a: "Handlungsmöglichkeiten, die eine Umgebung oder ein Objekt einem Individuum bietet. Sie beschreiben die Beziehung zwischen Objekteigenschaften und den Fähigkeiten einer Person." },
+        { q: "Was ist der Unterschied zwischen 'Affordances' und 'Signifiers'?", a: "Affordances sind die möglichen Handlungen. Signifiers sind Signale oder Hinweise (z.B. eine Beschriftung), die dem Nutzer kommunizieren, was möglich ist." },
+        { q: "Eine flache Platte an einer Tür signalisiert 'Drücken', obwohl man ziehen muss. Um welche Art von Affordance handelt es sich nach Gaver?", type: "mcq", options: ["Wahrnehmbare Affordance", "Falsche Affordance", "Versteckte Affordance", "Korrekte Ablehnung"], correct: 1, a: "Falsche Affordance. Die wahrgenommene Handlungsmöglichkeit ist inkorrekt." },
+        { q: "Eine Touch-Lampe ohne sichtbaren Schalter ist ein Beispiel für eine...", a: "Versteckte Affordance. Die Handlungsmöglichkeit ist vorhanden, aber nicht direkt wahrnehmbar." },
+
+        // 3. Usability
+        { q: "Definiere 'Usability' nach ISO 9241-11.", a: "Das Ausmaß, in dem ein Produkt von bestimmten Benutzern in einem bestimmten Nutzungskontext genutzt werden kann, um bestimmte Ziele effektiv, effizient und zufriedenstellend zu erreichen." },
+        { q: "Welches der 7 Dialogprinzipien (ISO 9241-110) besagt, dass der Nutzer jederzeit die Kontrolle über den Dialog haben sollte (z.B. durch 'Undo')?", type: "mcq", options: ["Aufgabenangemessenheit", "Selbstbeschreibungsfähigkeit", "Steuerbarkeit", "Erwartungskonformität"], correct: 2, a: "Steuerbarkeit." },
+        { q: "Welches Dialogprinzip wird verletzt, wenn sich ein System inkonsistent und für den Nutzer unerwartet verhält?", a: "Die Erwartungskonformität." },
+        { q: "Was ist eine Gefahr von exzessivem 'Minimal Design'?", a: "Es können wichtige Hinweise (Signifier) entfernt werden, was Prinzipien wie die Selbstbeschreibungsfähigkeit verletzt und zu Usability-Problemen führt." },
+
+        // 4. User Experience (UX)
+        { q: "Was sind die beiden Hauptqualitäten im Hedonisch-Pragmatischen Modell?", a: "Pragmatische Qualität (Nützlichkeit, Bedienbarkeit) und Hedonische Qualität (Freude, Vergnügen)." },
+        { q: "In welche zwei Aspekte unterteilt sich die hedonische Qualität?", a: "Stimulation (Anregung, Weiterentwicklung) und Identität (Selbstausdruck)." },
+        { q: "Wie ist die Beziehung zwischen Usability und User Experience?", a: "Usability ist ein Teil der User Experience. Usability fokussiert auf die pragmatische Qualität (Zielerreichung), während UX zusätzlich die hedonische Qualität (Emotionen, Freude) umfasst." },
+        
+        // 5. Experience Design
+        { q: "Nenne die 3 Ebenen des Ebenen-Modells der User Experience.", a: "1. WARUM (Be-Goals): Erlebnisebene; 2. WAS (Do-Goals): Funktionalitätsebene; 3. WIE (Motor-Goals): Interaktionsebene." },
+        { q: "Was ist der Hauptunterschied zwischen User Centered Design (UCD) und Experience Design (XD)?", a: "UCD ist problem-zentriert (fokussiert auf 'Was' & 'Wie'). XD ist möglichkeiten-zentriert (nimmt 'Warum' als Ausgangspunkt)." },
+        { q: "Erkläre das 'Autonomy Paradox'.", a: "Der Widerspruch, dass Technologien, die mehr Autonomie versprechen (z.B. Smartphone), durch neue soziale Normen (z.B. ständige Erreichbarkeit) diese Freiheit wieder einschränken können." },
+
+        // 6. Virtual Reality (VR)
+        { q: "Was ist der Unterschied zwischen 'Immersion' und 'Presence' in VR?", a: "Immersion ist eine objektive Eigenschaft des Systems (z.B. Display-Auflösung), die beschreibt, wie gut die Sinne von der Realität abgeschottet werden. Presence ist das subjektive Gefühl des Nutzers, tatsächlich in der virtuellen Welt zu sein." },
+        { q: "Wie wird 'Presence' typischerweise evaluiert?", a: "Subjektiv, durch Fragebögen (z.B. IPQ) oder physiologische Messungen (z.B. Herzrate)." },
+
+        // 7. Ästhetik der Interaktion
+        { q: "Wozu dient ein 'Interaktionsvokabular'?", a: "Es dient als Werkzeug zur Beschreibung, Spezifikation und Evaluation der 'Anmutung' einer Interaktion auf der 'Wie'-Ebene (z.B. langsam vs. schnell, fließend vs. abgestuft)." },
+        { q: "Eine schnelle, direkte Interaktion, die dem Nutzer Kontrolle vermittelt, kann welches psychologische Bedürfnis erfüllen?", a: "Das Bedürfnis nach Kompetenz." },
+
+        // 8. Prototyping & Evaluation
+        { q: "Was ist ein 'Platzhalter-Prototyp'?", a: "Ein einfacher Gegenstand (z.B. ein Stein), der eine Produktidee repräsentiert, um Feedback zur grundlegenden Idee zu sammeln, indem Nutzer reflektieren, wie sie ihn einsetzen würden." },
+        { q: "Was ist eine 'Heuristische Evaluation'?", a: "Eine analytische Evaluationsmethode, bei der Experten ein Interface anhand anerkannter Usability-Prinzipien (Heuristiken) überprüfen." },
+        { q: "Die Bereitstellung von 'Undo'- und 'Redo'-Funktionen ist ein Beispiel für welche Nielsen-Heuristik?", type: "mcq", options: ["Sichtbarkeit des Systemstatus", "Benutzerkontrolle und Freiheit", "Konsistenz und Standards", "Fehlervermeidung"], correct: 1, a: "Benutzerkontrolle und Freiheit." },
+        { q: "Welche Nielsen-Heuristik betont, dass Objekte, Aktionen und Optionen sichtbar sein sollten, um die Gedächtnisbelastung zu minimieren?", a: "Wiedererkennen statt erinnern." },
+        { q: "Fehlermeldungen sollten in einfacher Sprache verfasst sein und eine konstruktive Lösung vorschlagen. Zu welcher Nielsen-Heuristik gehört das?", a: "Hilfe beim Erkennen, Diagnostizieren und Beheben von Fehlern." },
+
+        // 9. Studiendesigns & Statistik
+        { q: "Was bezeichnet der p-Wert (Irrtumswahrscheinlichkeit)?", a: "Den Alpha-Fehler (Fehler 1. Art): Das Risiko, eine Nullhypothese fälschlicherweise abzulehnen (also einen Effekt anzunehmen, obwohl keiner existiert)." },
+        { q: "Bei welchem Wert liegt das wissenschaftlich konventionelle Signifikanzniveau?", a: "Bei p < 0.05 (also eine maximal tolerierbare Irrtumswahrscheinlichkeit von 5%)." },
+        
+        // 10. The Dark Side of UX: Dark Patterns
+        { q: "Ständige Pop-ups für App-Bewertungen sind ein Beispiel für welches Dark Pattern?", type: "mcq", options: ["Obstruction (Behinderung)", "Sneaking (Einschleichen)", "Nagging (Nörgeln)", "Forced Action (Erzwungene Handlung)"], correct: 2, a: "Nagging (Nörgeln)." },
+        { q: "Ein absichtlich komplizierter Kündigungsprozess ist ein Beispiel für...", a: "Obstruction (Behinderung)." },
+        { q: "Versteckte Kosten, die erst im letzten Schritt des Warenkorbs auftauchen, sind ein Beispiel für...", a: "Sneaking (Einschleichen)." },
+        { q: "Die UI so zu manipulieren, dass der 'Akzeptieren'-Button visuell hervorgehoben ist, während 'Ablehnen' versteckt wird, nennt man...", a: "Interface Interference (Schnittstellen-Manipulation)." }
+    ];
+
+    // --- DOM Elements ---
+    const screens = {
+        menu: document.getElementById('menu-screen'),
+        learning: document.getElementById('learning-screen'),
+        stats: document.getElementById('stats-screen'),
+        completion: document.getElementById('completion-screen')
+    };
+    const questionEl = document.getElementById('question');
+    const answerEl = document.getElementById('answer');
+    const flashcard = document.getElementById('flashcard');
+    const showAnswerBtn = document.getElementById('show-answer-btn');
+    const feedbackButtons = document.getElementById('feedback-buttons');
+    const mcqContainer = document.getElementById('multiple-choice-container');
+    
+    // --- App State ---
+    let learningState;
+    let currentCardIndex;
+    let activeCardPool = [];
+    const LEARNING_THRESHOLD = 3;
+
+    // --- Functions ---
+
+    function initializeState() {
+        const savedState = JSON.parse(localStorage.getItem('ux2LearningStateLukas'));
+        if (savedState && savedState.length === cardData.length) {
+            learningState = savedState;
+        } else {
+            learningState = cardData.map((card, index) => ({
+                id: index,
+                level: 0, // 0: unseen, 1,2: learning, 3: learned
+                correctStreak: 0
+            }));
+        }
+        updateStats();
+    }
+
+    function saveState() {
+        localStorage.setItem('ux2LearningStateLukas', JSON.stringify(learningState));
+    }
+
+    function switchScreen(screenName) {
+        Object.values(screens).forEach(s => s.classList.remove('active'));
+        screens[screenName].classList.add('active');
+    }
+
+    function buildActiveCardPool() {
+        activeCardPool = [];
+        const learningCards = [];
+        const unseenCards = [];
+
+        learningState.forEach(card => {
+            if (card.level < LEARNING_THRESHOLD) {
+                if(card.level > 0) learningCards.push(card.id);
+                else unseenCards.push(card.id);
+            }
+        });
+        
+        // Prioritize cards that are already in the learning process
+        const prioritizedPool = [...learningCards, ...learningCards, ...unseenCards];
+        
+        activeCardPool = shuffleArray(prioritizedPool.length > 0 ? prioritizedPool : unseenCards);
+
+        if (activeCardPool.length === 0 && learningState.some(c => c.level < LEARNING_THRESHOLD)) {
+             // This case happens if all cards are learned. We re-add them to the pool.
+             learningState.forEach(card => {
+                if (card.level < LEARNING_THRESHOLD) activeCardPool.push(card.id);
+             });
+             activeCardPool = shuffleArray(activeCardPool);
+        }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function nextCard() {
+        if (activeCardPool.length === 0) {
+            buildActiveCardPool();
+            if (activeCardPool.length === 0) {
+                 // All cards are learned
+                switchScreen('completion');
+                return;
+            }
+        }
+
+        currentCardIndex = activeCardPool.shift();
+        const card = cardData[currentCardIndex];
+        
+        // Reset card state
+        flashcard.classList.remove('is-flipped');
+        feedbackButtons.style.display = 'none';
+        showAnswerBtn.style.display = 'block';
+        mcqContainer.style.display = 'none';
+        mcqContainer.innerHTML = '';
+        
+        questionEl.textContent = card.q;
+        
+        if (card.type === 'mcq') {
+            answerEl.innerHTML = `<p>${card.a}</p>`;
+            showAnswerBtn.style.display = 'none';
+            mcqContainer.style.display = 'block';
+            
+            const options = shuffleArray([...card.options]);
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-neutral';
+                btn.textContent = option;
+                btn.onclick = () => checkMcqAnswer(option);
+                mcqContainer.appendChild(btn);
+            });
+        } else {
+            answerEl.innerHTML = `<p>${card.a}</p>`;
+        }
+        
+        updateLearningProgress();
+    }
+    
+    function checkMcqAnswer(selectedOption) {
+        const card = cardData[currentCardIndex];
+        const correctOptionText = card.options[card.correct];
+        
+        // Disable buttons
+        const buttons = mcqContainer.querySelectorAll('button');
+        buttons.forEach(b => b.disabled = true);
+        
+        // Highlight correct/incorrect answers
+        buttons.forEach(b => {
+            if (b.textContent === correctOptionText) {
+                b.classList.remove('btn-neutral');
+                b.classList.add('btn-correct');
+            } else if (b.textContent === selectedOption) {
+                 b.classList.remove('btn-neutral');
+                 b.classList.add('btn-incorrect');
+            }
+        });
+        
+        const wasCorrect = selectedOption === correctOptionText;
+        
+        setTimeout(() => {
+            handleAnswer(wasCorrect);
+        }, 1500); // Wait a bit so user can see the feedback
+    }
+
+    function handleAnswer(isCorrect) {
+        const state = learningState[currentCardIndex];
+        if (isCorrect) {
+            state.level = Math.min(state.level + 1, LEARNING_THRESHOLD);
+        } else {
+            state.level = Math.max(0, state.level -1); // Becomes less "known" but doesn't reset fully
+            // Re-add to the front of the pool to repeat soon
+            activeCardPool.unshift(currentCardIndex);
+        }
+        saveState();
+        updateStats();
+        setTimeout(nextCard, 500);
+    }
+    
+    function updateStats() {
+        const learned = learningState.filter(c => c.level >= LEARNING_THRESHOLD).length;
+        const unseen = learningState.filter(c => c.level === 0).length;
+        const learning = learningState.length - learned - unseen;
+        const total = learningState.length;
+        const progress = total > 0 ? (learned / total) * 100 : 0;
+        
+        // Update stats screen
+        document.getElementById('learned-cards').textContent = learned;
+        document.getElementById('learning-cards').textContent = learning;
+        document.getElementById('unseen-cards').textContent = unseen;
+        document.getElementById('total-cards').textContent = total;
+        document.getElementById('stats-progress-bar').style.width = `${progress}%`;
+        document.getElementById('stats-progress-bar').textContent = `${Math.round(progress)}%`;
+        document.getElementById('stats-progress-label').textContent = `${learned} von ${total} Karten gelernt`;
+    }
+
+    function updateLearningProgress() {
+        const learned = learningState.filter(c => c.level >= LEARNING_THRESHOLD).length;
+        const total = learningState.length;
+        const progress = total > 0 ? (learned / total) * 100 : 0;
+
+        document.getElementById('learning-progress-bar').style.width = `${progress}%`;
+        document.getElementById('learning-progress-label').textContent = `${learned} von ${total} gelernt | Verbleibend in dieser Runde: ${activeCardPool.length + 1}`;
+    }
+
+    function resetProgress() {
+        if (confirm("Bist du sicher, dass du deinen gesamten Lernfortschritt zurücksetzen möchtest?")) {
+            localStorage.removeItem('ux2LearningStateLukas');
+            initializeState();
+            switchScreen('menu');
+        }
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('start-btn').addEventListener('click', () => {
+        switchScreen('learning');
+        buildActiveCardPool();
+        nextCard();
+    });
+
+    document.getElementById('stats-btn').addEventListener('click', () => {
+        updateStats();
+        switchScreen('stats');
+    });
+
+    document.getElementById('back-to-menu-btn').addEventListener('click', () => switchScreen('menu'));
+    document.getElementById('back-to-menu-from-stats-btn').addEventListener('click', () => switchScreen('menu'));
+    document.getElementById('back-to-menu-from-completion-btn').addEventListener('click', () => switchScreen('menu'));
+
+    document.getElementById('reset-progress-btn').addEventListener('click', resetProgress);
+    document.getElementById('reset-from-completion-btn').addEventListener('click', resetProgress);
+    
+    showAnswerBtn.addEventListener('click', () => {
+        flashcard.classList.add('is-flipped');
+        showAnswerBtn.style.display = 'none';
+        feedbackButtons.style.display = 'block';
+    });
+    
+    flashcard.addEventListener('click', () => {
+        const card = cardData[currentCardIndex];
+        if (card.type !== 'mcq') {
+            flashcard.classList.toggle('is-flipped');
+            if(flashcard.classList.contains('is-flipped')) {
+                showAnswerBtn.style.display = 'none';
+                feedbackButtons.style.display = 'block';
+            }
+        }
+    });
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeState();
+    });
+    </script>
+</body>
+</html>

@@ -5,7 +5,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Standardeinstellungen speichern
   chrome.storage.local.set({
     isGloballyEnabled: true,
-    model: 'gemini-1.5-flash', // Update model name
+    model: 'gemini-2.5-flash', // Update model name
     fontSize: 1, // 0: Klein, 1: Mittel, 2: Groß
     contrastTheme: 'yellow-on-black',
     customPrompt: '',

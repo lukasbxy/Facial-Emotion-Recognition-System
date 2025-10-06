@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Einstellungen</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Einstellungen</h1>
+
+    <div class="settings-group">
+        <label for="api-key-input">Google AI API-Schlüssel:</label>
+        <input type="password" id="api-key-input" placeholder="Ihren API-Schlüssel hier einfügen">
+        <button id="save-api-key-button" style="margin-top: 10px;">Speichern</button>
+        <p id="save-status" style="margin-top: 5px; color: green;"></p>
+    </div>
+
+    <hr style="margin: 20px 0;">
+
+    <h2>Deaktivierte Webseiten (Whitelist)</h2>
+    <div class="settings-group">
+        <p>Auf den hier gelisteten Webseiten wird die Erweiterung nicht automatisch ausgeführt.</p>
+        <ul id="whitelist-list">
+            <!-- Whitelisted Seiten werden hier dynamisch eingefügt -->
+        </ul>
+    </div>
+
+    <hr style="margin: 20px 0;">
+
+    <h2>Ausgenommene Bilder (Whitelist)</h2>
+    <div class="settings-group">
+        <p>Diese Bilder werden immer angezeigt. Hinzufügen via Rechtsklick auf ein Bild.</p>
+        <ul id="image-whitelist-list">
+            <!-- Whitelisted Bilder werden hier dynamisch eingefügt -->
+        </ul>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+</html>

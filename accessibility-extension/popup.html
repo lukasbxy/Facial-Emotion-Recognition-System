@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Barrierefreiheits-Assistent</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Barrierefreiheits-Assistent</h1>
+        <div class="switch-container">
+            <span>An/Aus</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="global-toggle">
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <label for="model-select">KI-Modell:</label>
+        <select id="model-select">
+            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+        </select>
+    </div>
+
+    <div class="settings-group">
+        <label for="font-size-slider">Schriftgröße:</label>
+        <input type="range" id="font-size-slider" min="0" max="2" value="1" step="1">
+        <div class="slider-labels">
+            <span>Klein</span>
+            <span>Mittel</span>
+            <span>Groß</span>
+        </div>
+    </div>
+
+    <div class="settings-group">
+        <label for="contrast-select">Kontrast-Thema:</label>
+        <select id="contrast-select">
+            <option value="yellow-on-black">Gelb auf Schwarz</option>
+            <option value="white-on-black">Weiß auf Schwarz</option>
+            <option value="black-on-white">Schwarz auf Weiß</option>
+        </select>
+    </div>
+
+    <div class="settings-group">
+        <label for="custom-prompt">Zusätzliche Anweisung:</label>
+        <textarea id="custom-prompt" rows="3" placeholder="z.B. 'Mache alle Links fett'"></textarea>
+    </div>
+
+    <div class="actions">
+        <button id="reload-button">Ansicht neu generieren</button>
+        <button id="whitelist-button">Auf dieser Seite deaktivieren</button>
+    </div>
+
+    <footer>
+        <a href="options.html" target="_blank">Einstellungen (API-Schlüssel)</a>
+    </footer>
+
+    <script src="popup.js"></script>
+</body>
+</html>

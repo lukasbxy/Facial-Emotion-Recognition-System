@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Training Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .status-badge {
+            background: var(--accent);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .educational-note {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.5s ease;
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Training Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .status-badge {
+            background: var(--accent);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .educational-note {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Training Dashboard</h1>
+                <div style="color: var(--text-secondary); margin-top: 5px;">ResNet18 • Emotion Classification</div>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <select id="runSelect" style="background: var(--card-bg); color: var(--text-primary); border: 1px solid #334155; padding: 5px 10px; border-radius: 6px; outline: none;">
+                    <option value="metrics.json">Current Run</option>
+                </select>
+                <div id="status" class="status-badge">Connecting...</div>
+            </div>
+        </header>
+
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Progress</span>
+                <span id="epoch-text">Epoch 0/0</span>
+            </div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Accuracy Card -->
+            <div class="card">
+                <div class="metric-label">Validation Accuracy</div>
+                <div id="val-acc" class="metric-value">0.0%</div>
+                <div class="educational-note">
+                    <strong>Tip:</strong> <span id="note-acc">Higher is better. Aim for >85%.</span>
+                </div>
+            </div>
+
+            <!-- Loss Card -->
+            <div class="card">
+                <div class="metric-label">Validation Loss</div>
+                <div id="val-loss" class="metric-value">0.000</div>
+                <div class="educational-note">
+                    <strong>Tip:</strong> <span id="note-loss">Lower is better. Watch for overfitting if this
+                        rises.</span>
+                </div>
+            </div>
+
+            <!-- F1 Card -->
+            <div class="card">
+                <div class="metric-label">F1 Score</div>
+                <div id="val-f1" class="metric-value">0.000</div>
+                <div class="educational-note">
+                    <strong>Tip:</strong> <span id="note-f1">Combines Precision & Recall. Best for imbalanced
+                        data.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Performance Section -->
+        <h2 style="margin-bottom: 20px; font-size: 20px; color: var(--text-primary);">System Performance</h2>
+        <div class="grid">
+            <div class="card">
+                <div class="metric-label">Throughput</div>
+                <div id="sys-throughput" class="metric-value">0 img/s</div>
+                <div class="metric-label" style="font-size: 12px; margin-top: 5px;">Speed of processing</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">Epoch Duration</div>
+                <div id="sys-duration" class="metric-value">0s</div>
+                <div class="metric-label" style="font-size: 12px; margin-top: 5px;">Time per epoch</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">Batch Size</div>
+                <div id="sys-batch" class="metric-value">-</div>
+                <div class="metric-label" style="font-size: 12px; margin-top: 5px;">Images per step</div>
+            </div>
+            <div class="card">
+                <div class="metric-label">Workers</div>
+                <div id="sys-workers" class="metric-value">-</div>
+                <div class="metric-label" style="font-size: 12px; margin-top: 5px;">Data loading threads</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Loss History</h3>
+                <div class="chart-container">
+                    <canvas id="lossChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Accuracy History</h3>
+                <div class="chart-container">
+                    <canvas id="accChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Setup Charts
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8' } }
+            },
+            scales: {
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+            }
+        };
+
+        const lossChart = new Chart(document.getElementById('lossChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Train Loss', borderColor: '#3b82f6', data: [], tension: 0.4 },
+                    { label: 'Val Loss', borderColor: '#ef4444', data: [], tension: 0.4 }
+                ]
+            },
+            options: commonOptions
+        });
+
+        const accChart = new Chart(document.getElementById('accChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Train Acc', borderColor: '#3b82f6', data: [], tension: 0.4 },
+                    { label: 'Val Acc', borderColor: '#22c55e', data: [], tension: 0.4 }
+                ]
+            },
+            options: commonOptions
+        });
+
+        let currentRunFile = 'metrics.json';
+
+        async function fetchRuns() {
+            try {
+                const response = await fetch('../runs/runs_index.json?t=' + new Date().getTime());
+                const runs = await response.json();
+                
+                const select = document.getElementById('runSelect');
+                // Keep "Current Run" as first option
+                select.innerHTML = '<option value="metrics.json">Current Run</option>';
+                
+                runs.forEach(run => {
+                    const option = document.createElement('option');
+                    option.value = run.filename;
+                    option.text = run.name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.log("No runs index found or error fetching it.");
+            }
+        }
+
+        document.getElementById('runSelect').addEventListener('change', (e) => {
+            currentRunFile = e.target.value;
+            updateDashboard();
+        });
+
+        async function updateDashboard() {
+            try {
+                // Fetch data from the selected JSON file
+                const response = await fetch(`../runs/${currentRunFile}?t=` + new Date().getTime());
+                if (!response.ok) throw new Error("File not found");
+                
+                const data = await response.json();
+
+                // Update Status
+                document.getElementById('status').innerText = data.status;
+                document.getElementById('epoch-text').innerText = `Epoch ${data.epoch + 1}/${data.total_epochs}`;
+
+                // Update Progress
+                const progress = (data.epoch / data.total_epochs) * 100;
+                document.getElementById('progress-fill').style.width = `${progress}%`;
+
+                // Update System Info (Static)
+                if (data.system_info) {
+                    document.getElementById('sys-batch').innerText = data.system_info.batch_size || '-';
+                    document.getElementById('sys-workers').innerText = data.system_info.num_workers || '-';
+                }
+
+                if (data.history.length > 0) {
+                    const latest = data.history[data.history.length - 1];
+
+                    // Update Cards
+                    document.getElementById('val-acc').innerText = `${latest.val_acc.toFixed(1)}%`;
+                    document.getElementById('val-loss').innerText = latest.val_loss.toFixed(4);
+                    document.getElementById('val-f1').innerText = latest.val_f1.toFixed(3);
+
+                    // Update Performance Cards
+                    if (latest.throughput) {
+                        document.getElementById('sys-throughput').innerText = `${Math.round(latest.throughput)} img/s`;
+                    }
+                    if (latest.epoch_duration) {
+                        document.getElementById('sys-duration').innerText = `${latest.epoch_duration.toFixed(1)}s`;
+                    }
+
+                    // Update Charts
+                    const labels = data.history.map(h => `Ep ${h.epoch + 1}`);
+
+                    lossChart.data.labels = labels;
+                    lossChart.data.datasets[0].data = data.history.map(h => h.train_loss);
+                    lossChart.data.datasets[1].data = data.history.map(h => h.val_loss);
+                    lossChart.update();
+
+                    accChart.data.labels = labels;
+                    accChart.data.datasets[0].data = data.history.map(h => h.train_acc);
+                    accChart.data.datasets[1].data = data.history.map(h => h.val_acc);
+                    accChart.update();
+                } else {
+                    // Clear charts if no history
+                    lossChart.data.labels = [];
+                    lossChart.data.datasets.forEach(d => d.data = []);
+                    lossChart.update();
+                    
+                    accChart.data.labels = [];
+                    accChart.data.datasets.forEach(d => d.data = []);
+                    accChart.update();
+                }
+
+            } catch (e) {
+                console.error("Error fetching metrics:", e);
+                document.getElementById('status').innerText = "Offline / Error";
+            }
+        }
+
+        // Initial load
+        fetchRuns();
+        updateDashboard();
+
+        // Poll every 2 seconds
+        setInterval(() => {
+            // Only poll if we are looking at the current run, or maybe we want to see updates on old runs? 
+            // Old runs don't change. But let's keep it simple.
+            updateDashboard();
+            // Also refresh the runs list occasionally in case a new run starts?
+            // fetchRuns(); // Maybe not every 2s, but okay.
+        }, 2000);
+    </script>
+</body>
+
+</html>

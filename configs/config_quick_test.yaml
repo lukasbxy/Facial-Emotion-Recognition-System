@@ -1,0 +1,43 @@
+# ==============================================================================
+# Quick Test Configuration
+# ==============================================================================
+# Minimal configuration for quickly testing the training pipeline.
+# Uses only 2 epochs and CPU to verify everything works.
+# ==============================================================================
+
+# Data Configuration
+data:
+  data_dir: "archive/data"
+  batch_size: 8
+  num_workers: 0
+  validation_split: 0.2
+  image_size: 64
+
+# Model Configuration
+model:
+  name: "improved_cnn"
+  num_classes: 7
+  pretrained: false
+  drop_path_rate: 0.0
+
+# Augmentation (disabled for quick test)
+augmentation:
+  trivial_augment: false
+  mixup_alpha: 0.0
+  cutmix_alpha: 0.0
+  label_smoothing: 0.0
+
+# Training Configuration
+training:
+  epochs: 2
+  learning_rate: 1.0e-3
+  weight_decay: 0.01
+  optimizer: "adamw"
+  scheduler: "cosine"
+  warmup_epochs: 0
+  min_lr: 1.0e-6
+  ema_decay: 0.0
+  device: "cpu"
+  seed: 42
+  checkpoint_dir: "checkpoints_test"
+  log_dir: "runs_test"

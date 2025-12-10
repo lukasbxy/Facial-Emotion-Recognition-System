@@ -1,0 +1,109 @@
+# ==================================
+# Python
+# ==================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ==================================
+# Virtual Environments
+# ==================================
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ==================================
+# IDE & Editors
+# ==================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ==================================
+# Jupyter Notebooks
+# ==================================
+.ipynb_checkpoints/
+*.ipynb
+
+# ==================================
+# Model Checkpoints & Training Artifacts
+# ==================================
+checkpoints/
+runs/
+*.pth
+*.pt
+*.ckpt
+*.h5
+
+# ==================================
+# Data & Large Files
+# ==================================
+archive/
+data/
+datasets/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ==================================
+# Logs & Output
+# ==================================
+*.log
+logs/
+output/
+results/
+evaluation_history.json
+
+# ==================================
+# OS Generated Files
+# ==================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==================================
+# Temporary Files
+# ==================================
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# ==================================
+# Documentation PDFs (optional - uncomment to include)
+# ==================================
+# Docs/*.pdf

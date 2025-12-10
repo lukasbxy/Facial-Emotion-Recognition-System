@@ -1,0 +1,51 @@
+# ==============================================================================
+# Facial Emotion Recognition - Training Configuration
+# ==============================================================================
+# Main configuration file for training the emotion recognition model.
+# Adjust parameters based on your hardware and requirements.
+# ==============================================================================
+
+# --------------------------------------
+# Data Configuration
+# --------------------------------------
+data:
+  data_dir: "archive/data"           # Path to training data (ImageFolder structure)
+  batch_size: 32                      # Batch size (reduce if OOM, increase for faster training)
+  num_workers: 0                      # DataLoader workers (0 for Windows, increase on Linux)
+  validation_split: 0.2               # Validation set size (20%)
+  image_size: 64                      # Input image size (64x64 for ImprovedCNN)
+
+# --------------------------------------
+# Model Configuration
+# --------------------------------------
+model:
+  name: "improved_cnn"                # Options: resnet18, convnext_v2_nano, improved_cnn
+  num_classes: 7                      # Number of emotion classes
+  pretrained: false                   # Use pretrained weights (only for resnet18)
+  drop_path_rate: 0.1                 # Drop path rate for regularization (ConvNeXt)
+
+# --------------------------------------
+# Augmentation Configuration
+# --------------------------------------
+augmentation:
+  trivial_augment: true               # Use TrivialAugmentWide (recommended)
+  mixup_alpha: 0.8                    # Mixup alpha (0 to disable)
+  cutmix_alpha: 1.0                   # CutMix alpha (0 to disable)
+  label_smoothing: 0.1                # Label smoothing factor
+
+# --------------------------------------
+# Training Configuration
+# --------------------------------------
+training:
+  epochs: 50                          # Total training epochs
+  learning_rate: 4.0e-3               # Initial learning rate
+  weight_decay: 0.05                  # Weight decay (L2 regularization)
+  optimizer: "adamw"                  # Optimizer type
+  scheduler: "cosine"                 # LR scheduler (cosine annealing)
+  warmup_epochs: 20                   # Linear warmup epochs
+  min_lr: 1.0e-6                      # Minimum learning rate
+  ema_decay: 0.9999                   # EMA decay (currently unused)
+  device: "cuda"                      # Device: cuda or cpu
+  seed: 42                            # Random seed for reproducibility
+  checkpoint_dir: "checkpoints"       # Directory for model checkpoints
+  log_dir: "runs"                     # Directory for training logs
